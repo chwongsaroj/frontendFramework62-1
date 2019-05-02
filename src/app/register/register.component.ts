@@ -51,10 +51,13 @@ export class RegisterComponent implements OnInit {
           this.f.password.value
         )
         .subscribe(data => {
-          if (data) {
+          if (data.status == true) {
             alert("Register success!");
             this.router.navigate(["/home"]);
+          } else {
+            alert(data.message);
           }
+          
         });
     } else {
       alert("Invalid!"); // show mesage กรณีกรอกข้อมูลไม่ครบใน input
