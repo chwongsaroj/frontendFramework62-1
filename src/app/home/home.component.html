@@ -1,3 +1,50 @@
-<p>
-  home works!
-</p>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <h3>HOME</h3>
+    </div>
+    <ul class="list-unstyled components">
+      <li>
+        <a [routerLink]="['/home']">รายชื่อผู้ใช้งาน</a>
+      </li>
+    </ul>
+  </nav>
+  <!-- Page Content -->
+  <div id="content">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <button type="button" id="sidebarCollapse" class="btn btn-info">
+          <i class="fas fa-align-left"></i>
+          <span class="ml-2">Toggle Sidebar</span>
+        </button>
+      </div>
+    </nav>
+    <h2 class="mt-2">รายชื่อผู้ใช้งาน</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th class="text-center">ล าดับ</th>
+          <th class="text-center">ชื่อ - นามสกุล</th>
+          <th class="text-center">สังกัด</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users; let i = index">
+          <td class="text-center">{{i + ((currentPage-1)*limit) + 1 }}</td>
+          <td class="text-center">{{user.first_name}} {{user.last_name}}</td>
+          <td class="text-center">{{user.unit_name}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#" (click)="prevPage($event)">Previous</a></li>
+        <li class="page-item" [class.active]="currentPage==i+1"
+          *ngFor="let page-number of totalInPagination; let i = index"><a class="page-link" href="#"
+            (click)="gotoPage($event,i+1)">{{i+1}}</a></li>
+        <li class="page-item"><a class="page-link" href="#" (click)="nextPage($event)">Next</a></li>
+      </ul>
+    </nav>
+    <pre>Current page: {{currentPage}} </pre>
+  </div>
