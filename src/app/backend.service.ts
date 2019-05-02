@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { tap } from "rxjs/operators";
-
+import { JwtHelperService } from "@auth0/angular-jwt";
 const authServiceUrl = "https://backend-framework62-ionian.herokuapp.com/";
 
 const httpOptions = {
@@ -10,13 +10,22 @@ const httpOptions = {
     "Content-Type": "application/json"
   })
 };
+const helper = new JwtHelperService();
 
 @Injectable({
   providedIn: "root"
 })
 export class BackendService {
-  constructor(private http: HttpClient) {}
-
+  //constructor(private http: HttpClient) {}
+  public httpOptionsWithToken;
+  constructor(private http: HttpClient) {
+    this.httpOptionsWithToken = {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        "x-access-token": localStorage.getItem("id_token")
+      })
+    };
+  }
   register(
     rank: string,
     first_name: string,
@@ -32,7 +41,11 @@ export class BackendService {
         { rank, first_name, last_name, id_mil, unit_name, username, password },
         httpOptions
       )
-      .pipe();
+      .pipe(
+        tap(data => {
+          this.setSession(data.token);
+        })
+      );
   }
 
   login(username: string, password: string) {
@@ -42,6 +55,41 @@ export class BackendService {
         { username, password },
         httpOptions
       )
+      .pipe(
+        tap(data => {
+          this.setSession(data.token);
+        })
+      );
+  }
+
+  private setSession(token) {
+    localStorage.setItem("id_token", token);
+    this.httpOptionsWithToken = {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        "x-access-token": localStorage.getItem("id_token")
+      })
+    };
+  }
+  logout() {
+    localStorage.removeItem("id_token");
+  }
+  verifyToken() {
+    const token = localStorage.getItem("id_token");
+    return this.http
+      .post<any>(authServiceUrl + "login/verifyToken", { token }, httpOptions)
       .pipe();
+  }
+  public isLoggedIn(): Boolean {
+    const token = localStorage.getItem("id_token");
+    return !helper.isTokenExpired(token);
+  }
+  public decodeToken() {
+    const token = localStorage.getItem("id_token");
+    if (this.isLoggedIn()) {
+      return helper.decodeToken(token);
+    } else {
+      return false;
+    }
   }
 }
